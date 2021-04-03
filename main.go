@@ -1,26 +1,36 @@
 package main
 
 import (
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"net/http"
+	"os"
+	"time"
+
+	"github.com/Amanse/sql_blog/handlers"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/learning")
-	defer db.Close()
-	if err != nil {
-		log.Fatal(err)
+	//Make a new logger to pass into the handler
+	l := log.New(os.Stdout, "posts-api", log.LstdFlags)
+
+	//Get posts handler
+	ph := handlers.NewPosts(l)
+
+	// Make a new mux/router
+	r := mux.NewRouter()
+
+	//Make getRouter
+	getRouter := r.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/posts", ph.GetPosts)
+
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         ":9090",
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("DB connected")
-
-	state := "INSERT INTO posts(body, email) VALUES('verysad', 'everyone@earth.com')"
-	res, err := db.Query(state)
-	defer res.Close()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	log.Fatal(srv.ListenAndServe())
 }
