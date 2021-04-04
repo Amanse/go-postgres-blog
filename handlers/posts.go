@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 
@@ -10,34 +9,20 @@ import (
 )
 
 type PostHandler struct {
-	l  *log.Logger
-	db *sql.DB
+	l *log.Logger
 }
 
 func NewPosts(l *log.Logger) *PostHandler {
-	db := openDBConnection()
-	return &PostHandler{l, db}
-}
-
-func openDBConnection() *sql.DB {
-	//Open connection to database
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/learning")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return db
+	return &PostHandler{l}
 }
 
 func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle get all posts")
 
-	posts := data.GetAllPosts(p.db)
-	i := 0
-	for i <= len(posts)-1 {
-		p.l.Println("ID: ", posts[i].ID)
-		p.l.Println("Body: ", posts[i].Body)
-		p.l.Println("Email: ", posts[i].Email)
-		p.l.Println("-----------------------")
-		i = i + 1
+	var posts data.Posts
+	posts = data.GetAllPosts()
+	err := posts.ToJson(rw)
+	if err != nil {
+		http.Error(rw, "Couldn't decode json from db", http.StatusInternalServerError)
 	}
 }
