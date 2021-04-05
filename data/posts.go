@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 
@@ -25,6 +26,7 @@ func openDBConnection() *sql.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Connected to db")
 	return db
 }
 
@@ -33,12 +35,15 @@ func (p *Posts) ToJson(w io.Writer) error {
 	return e.Encode(p)
 }
 
-func (p *Posts) FromJson(r io.Reader) error {
+func (p *Post) FromJson(r io.Reader) error {
 	e := json.NewDecoder(r)
 	return e.Decode(p)
 }
 
 func GetAllPosts() Posts {
+
+	postList = make(Posts, 0)
+
 	db := openDBConnection()
 	defer db.Close()
 	query := "SELECT * FROM posts"
@@ -62,4 +67,29 @@ func GetAllPosts() Posts {
 	}
 
 	return postList
+}
+
+var PostNotMade = fmt.Errorf("Couldn't make post")
+
+func MakePostDB(p Post) error {
+	db := openDBConnection()
+	defer db.Close()
+
+	query := "INSERT INTO posts(body, email) VALUES(?,?)"
+	res, err := db.Exec(query, p.Body, p.Email)
+
+	if err != nil {
+		log.Fatal(err)
+		return PostNotMade
+	}
+
+	_, err = res.LastInsertId()
+
+	if err != nil {
+		log.Fatal(err)
+		return PostNotMade
+	}
+
+	return nil
+
 }

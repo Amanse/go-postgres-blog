@@ -26,3 +26,21 @@ func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Couldn't decode json from db", http.StatusInternalServerError)
 	}
 }
+
+func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
+	p.l.Println("Handle POST request")
+
+	var post data.Post
+
+	err := post.FromJson(r.Body)
+	if err != nil {
+		http.Error(rw, "Couldn't decode json", http.StatusBadRequest)
+	}
+
+	err = data.MakePostDB(post)
+
+	if err != nil {
+		log.Fatal(err)
+		http.Error(rw, "Nothing big duh", http.StatusInternalServerError)
+	}
+}
