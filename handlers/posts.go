@@ -3,9 +3,11 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/Amanse/sql_blog/data"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 type PostHandler struct {
@@ -42,5 +44,26 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 		http.Error(rw, "Nothing big duh", http.StatusInternalServerError)
+	}
+}
+
+func (p *PostHandler) UpdatePost(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	i, _ := strconv.Atoi(id)
+	p.l.Println("Handle PUT request", id)
+
+	var post data.Post
+
+	err := post.FromJson(r.Body)
+
+	if err != nil {
+		http.Error(rw, "Unmarchln't json", http.StatusBadRequest)
+		return
+	}
+	err = data.UpdatePostDB(i, post)
+	if err != nil {
+		http.Error(rw, "couldn't update post", http.StatusBadRequest)
+		return
 	}
 }

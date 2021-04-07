@@ -93,3 +93,18 @@ func MakePostDB(p Post) error {
 	return nil
 
 }
+
+func UpdatePostDB(id int, p Post) error {
+	db := openDBConnection()
+	defer db.Close()
+
+	query := "UPDATE posts SET body=? WHERE id=?"
+	_, err := db.Exec(query, p.Body, id)
+
+	if err != nil {
+		log.Fatal(err)
+		return PostNotMade
+	}
+
+	return nil
+}

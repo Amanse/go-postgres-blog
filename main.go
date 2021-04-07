@@ -29,6 +29,10 @@ func main() {
 	postRouter := r.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/posts", ph.MakePost)
 
+	//Put Request
+	putRouter := r.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/posts/{id:[0-9]+}", ph.UpdatePost)
+
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         ":9090",
