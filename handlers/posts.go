@@ -67,3 +67,16 @@ func (p *PostHandler) UpdatePost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (p *PostHandler) DeletePost(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	i, _ := strconv.Atoi(id)
+	p.l.Println("Handle delete request", i)
+
+	err := data.DeletePostDB(i)
+	if err != nil {
+		http.Error(rw, "not deltee", http.StatusBadRequest)
+		return
+	}
+}
