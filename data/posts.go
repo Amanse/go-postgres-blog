@@ -108,3 +108,20 @@ func UpdatePostDB(id int, p Post) error {
 
 	return nil
 }
+
+var CantDeletePost = fmt.Errorf("cant delete post")
+
+func DeletePostDB(id int) error {
+	db := openDBConnection()
+	defer db.Close()
+
+	query := "DELETE FROM posts WHERE id=?"
+	_, err := db.Exec(query, id)
+
+	if err != nil {
+		log.Fatal(err)
+		return CantDeletePost
+	}
+
+	return nil
+}

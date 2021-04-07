@@ -33,6 +33,10 @@ func main() {
 	putRouter := r.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/posts/{id:[0-9]+}", ph.UpdatePost)
 
+	//Delete Request
+	deleteRouter := r.Methods(http.MethodDelete).Subrouter()
+	deleteRouter.HandleFunc("/posts/{id:[0-9]+}", ph.DeletePost)
+
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         ":9090",
