@@ -76,15 +76,8 @@ func MakePostDB(p Post) error {
 	db := openDBConnection()
 	defer db.Close()
 
-	query := "INSERT INTO posts(body, email) VALUES(?,?)"
-	res, err := db.Exec(query, p.Body, p.Email)
-
-	if err != nil {
-		log.Fatal(err)
-		return PostNotMade
-	}
-
-	_, err = res.LastInsertId()
+	query := "INSERT INTO posts(body, email) VALUES($1,$2)"
+	_, err := db.Exec(query, p.Body, p.Email)
 
 	if err != nil {
 		log.Fatal(err)
@@ -99,7 +92,7 @@ func UpdatePostDB(id int, p Post) error {
 	db := openDBConnection()
 	defer db.Close()
 
-	query := "UPDATE posts SET body=? WHERE id=?"
+	query := "UPDATE posts SET body=$1 WHERE id=$2"
 	_, err := db.Exec(query, p.Body, id)
 
 	if err != nil {
@@ -116,7 +109,7 @@ func DeletePostDB(id int) error {
 	db := openDBConnection()
 	defer db.Close()
 
-	query := "DELETE FROM posts WHERE id=?"
+	query := "DELETE FROM posts WHERE id=$1"
 	_, err := db.Exec(query, id)
 
 	if err != nil {
