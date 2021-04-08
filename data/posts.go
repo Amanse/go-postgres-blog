@@ -7,6 +7,7 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 )
 
 type Post struct {
@@ -21,7 +22,7 @@ var postList Posts
 
 func openDBConnection() *sql.DB {
 	//Open connection to database
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/learning")
+	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
