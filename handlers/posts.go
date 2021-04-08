@@ -23,6 +23,7 @@ func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 
 	var posts data.Posts
 	posts = data.GetAllPosts()
+	p.l.Println(posts)
 	err := posts.ToJson(rw)
 	if err != nil {
 		http.Error(rw, "Couldn't decode json from db", http.StatusInternalServerError)
@@ -36,7 +37,9 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 
 	err := post.FromJson(r.Body)
 	if err != nil {
+		p.l.Println("err", err)
 		http.Error(rw, "Couldn't decode json", http.StatusBadRequest)
+		return
 	}
 
 	err = data.MakePostDB(post)
