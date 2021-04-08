@@ -25,6 +25,18 @@ func main() {
 	getRouter := r.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/posts", ph.GetPosts)
 
+	//Post request router
+	postRouter := r.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/posts", ph.MakePost)
+
+	//Put Request
+	putRouter := r.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/posts/{id:[0-9]+}", ph.UpdatePost)
+
+	//Delete Request
+	deleteRouter := r.Methods(http.MethodDelete).Subrouter()
+	deleteRouter.HandleFunc("/posts/{id:[0-9]+}", ph.DeletePost)
+
 	srv := &http.Server{
 		Handler:      r,
 		Addr:         ":9090",
@@ -32,5 +44,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
+	l.Println("Running on 9090")
 	log.Fatal(srv.ListenAndServe())
+
 }
