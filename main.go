@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/Amanse/sql_blog/handlers"
@@ -44,7 +46,25 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	l.Println("Running on 9090")
-	log.Fatal(srv.ListenAndServe())
+	go func() {
+		//err := srv.ListenAndServe()
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+	l.Println("Serving")
+
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, os.Interrupt)
+	signal.Notify(sigChan, os.Kill)
+
+	sig := <-sigChan
+	l.Println("Shutting down", sig)
+
+	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	srv.Shutdown(tc)
 
 }
