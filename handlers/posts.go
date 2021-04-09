@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,18 +12,24 @@ import (
 )
 
 type PostHandler struct {
-	l *log.Logger
+	l  *log.Logger
+	db *sql.DB
 }
 
 func NewPosts(l *log.Logger) *PostHandler {
-	return &PostHandler{l}
+	//Open connection to database
+	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &PostHandler{l, db}
 }
 
 func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle get all posts")
 
 	var posts data.Posts
-	posts = data.GetAllPosts()
+	posts = data.GetAllPosts(p.db)
 	err := posts.ToJson(rw)
 	if err != nil {
 		http.Error(rw, "Couldn't decode json from db", http.StatusInternalServerError)
@@ -41,7 +48,7 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = data.MakePostDB(post)
+	err = data.MakePostDB(post, p.db)
 
 	if err != nil {
 		log.Fatal(err)
@@ -63,7 +70,7 @@ func (p *PostHandler) UpdatePost(rw http.ResponseWriter, r *http.Request) {
 		http.Error(rw, "Unmarchln't json", http.StatusBadRequest)
 		return
 	}
-	err = data.UpdatePostDB(i, post)
+	err = data.UpdatePostDB(i, post, p.db)
 	if err != nil {
 		http.Error(rw, "couldn't update post", http.StatusBadRequest)
 		return
@@ -76,7 +83,7 @@ func (p *PostHandler) DeletePost(rw http.ResponseWriter, r *http.Request) {
 	i, _ := strconv.Atoi(id)
 	p.l.Println("Handle delete request", i)
 
-	err := data.DeletePostDB(i)
+	err := data.DeletePostDB(i, p.db)
 	if err != nil {
 		http.Error(rw, "not deltee", http.StatusBadRequest)
 		return

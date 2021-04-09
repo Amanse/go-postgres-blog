@@ -21,16 +21,6 @@ type Posts []Post
 
 var postList Posts
 
-func openDBConnection() *sql.DB {
-	//Open connection to database
-	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Connected to db")
-	return db
-}
-
 func (p *Posts) ToJson(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(p)
@@ -41,12 +31,10 @@ func (p *Post) FromJson(r io.Reader) error {
 	return e.Decode(p)
 }
 
-func GetAllPosts() Posts {
+func GetAllPosts(db *sql.DB) Posts {
 
 	postList = make(Posts, 0)
 
-	db := openDBConnection()
-	defer db.Close()
 	query := "SELECT * FROM posts"
 	res, err := db.Query(query)
 	defer res.Close()
@@ -72,9 +60,7 @@ func GetAllPosts() Posts {
 
 var PostNotMade = fmt.Errorf("Couldn't make post")
 
-func MakePostDB(p Post) error {
-	db := openDBConnection()
-	defer db.Close()
+func MakePostDB(p Post, db *sql.DB) error {
 
 	query := "INSERT INTO posts(body, email) VALUES($1,$2)"
 	_, err := db.Exec(query, p.Body, p.Email)
@@ -88,9 +74,7 @@ func MakePostDB(p Post) error {
 
 }
 
-func UpdatePostDB(id int, p Post) error {
-	db := openDBConnection()
-	defer db.Close()
+func UpdatePostDB(id int, p Post, db *sql.DB) error {
 
 	query := "UPDATE posts SET body=$1 WHERE id=$2"
 	_, err := db.Exec(query, p.Body, id)
@@ -105,10 +89,7 @@ func UpdatePostDB(id int, p Post) error {
 
 var CantDeletePost = fmt.Errorf("cant delete post")
 
-func DeletePostDB(id int) error {
-	db := openDBConnection()
-	defer db.Close()
-
+func DeletePostDB(id int, db *sql.DB) error {
 	query := "DELETE FROM posts WHERE id=$1"
 	_, err := db.Exec(query, id)
 
