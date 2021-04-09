@@ -1,5 +1,4 @@
 # go-mariadb-blog
-
 Just a backend(for now) written in golang and using mariadb as database
 
 ## setup
@@ -15,4 +14,6 @@ Just a backend(for now) written in golang and using mariadb as database
 
 ## api routes
 - :9090/posts [GET] to get all posts
-- :9090/posts [POST] to make posts
+- :9090/posts [POST] to make post
+- :9090/posts/{id} [PUT] to update post
+- :9090/posts/{id} [DELETE] to delete post
