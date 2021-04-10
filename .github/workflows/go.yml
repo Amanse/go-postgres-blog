@@ -21,8 +21,6 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
+    - name: Docker
       uses: isbang/compose-action@v0.2.0
-      with:
-        compose-file: ./docker-compose.yml
-      run: docker-compose up
+
