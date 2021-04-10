@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/Amanse/sql_blog/data"
@@ -18,7 +19,17 @@ type PostHandler struct {
 
 func NewPosts(l *log.Logger) *PostHandler {
 	//Open connection to database
-	db, err := sql.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable")
+
+	var conn string
+
+	if os.Getenv("DB_CONN") != "" {
+		log.Println(os.Getenv("DB_CONN"))
+		conn = os.Getenv("DB_CONN")
+	} else {
+		conn = "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable"
+	}
+
+	db, err := sql.Open("postgres", conn)
 	if err != nil {
 		log.Fatal(err)
 	}
