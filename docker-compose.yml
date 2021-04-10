@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+
+  app:
+    container_name: posts_api
+    build: .
+    ports:
+      - 9090:9090
+    restart: on-failure
+    environment:
+      DB_CONN: "host=db port=5432 user=postgres dbname=learning sslmode=disable"
+    volumes:
+      - .:/app
+    depends_on: 
+      - db
+    links:
+      - db
+
+  db:
+    image: postgres
+    container_name: posts_db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "learning"
+    ports:
+      - 5432:5432
+
