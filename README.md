@@ -4,7 +4,7 @@ Just a backend(for now) written in golang and using mariadb as database
 ## setup
 - git clone
 - go mod tidy
-- start mariadb terminal
+- start postgresql terminal
 - CREATE DATABASE learning;
 - USE learning;
 - CREATE TABLE posts (id int PRIMARY KEY AUTO_INCREMENT, body text, email VARCHAR(255));
