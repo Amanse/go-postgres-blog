@@ -38,6 +38,7 @@ func NewPosts(l *log.Logger) *PostHandler {
 
 func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle get all posts")
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var posts data.Posts
 	posts = data.GetAllPosts(p.db)
@@ -49,6 +50,8 @@ func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 
 func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST request")
+
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var post data.Post
 
