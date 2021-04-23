@@ -26,7 +26,7 @@ func NewPosts(l *log.Logger) *PostHandler {
 		log.Println(os.Getenv("DB_CONN"))
 		conn = os.Getenv("DB_CONN")
 	} else {
-		conn = "host=127.0.0.1 port=5432 user=postgres dbname=learning sslmode=disable"
+		conn = "host=localhost user=me dbname=go_blog sslmode=disable"
 	}
 
 	db, err := sql.Open("postgres", conn)
