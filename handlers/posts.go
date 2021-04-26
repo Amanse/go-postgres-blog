@@ -67,6 +67,7 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 		http.Error(rw, "Nothing big duh", http.StatusInternalServerError)
+		return
 	}
 }
 

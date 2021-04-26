@@ -12,9 +12,10 @@ import (
 )
 
 type Post struct {
-	ID    int    `json:"id"`
-	Body  string `json:"body"`
-	Email string `json:"email"`
+	ID     int    `json:"id"`
+	Body   string `json:"body"`
+	Email  string `json:"email"`
+	UserId int    `json:"user_id"`
 }
 
 type Posts []Post
@@ -45,7 +46,7 @@ func GetAllPosts(db *sql.DB) Posts {
 
 	for res.Next() {
 		var post Post
-		err := res.Scan(&post.ID, &post.Body, &post.Email)
+		err := res.Scan(&post.ID, &post.Body, &post.Email, &post.UserId)
 
 		if err != nil {
 			log.Fatal(err)
@@ -62,8 +63,28 @@ var PostNotMade = fmt.Errorf("Couldn't make post")
 
 func MakePostDB(p Post, db *sql.DB) error {
 
-	query := "INSERT INTO posts(body, email) VALUES($1,$2)"
-	_, err := db.Exec(query, p.Body, p.Email)
+	// getting the email
+
+	equery := "SELECT email FROM users WHERE id=$1"
+	res, err := db.Query(equery, p.UserId)
+
+	if err != nil {
+		log.Fatal(err)
+		return PostNotMade
+	}
+
+	for res.Next() {
+		var email string
+		err = res.Scan(&email)
+		if err != nil {
+			log.Fatal(err)
+			return PostNotMade
+		}
+		p.Email = email
+	}
+
+	query := "INSERT INTO posts(body, email, user_id) VALUES($1,$2, $3)"
+	_, err = db.Exec(query, p.Body, p.Email, p.UserId)
 
 	if err != nil {
 		log.Fatal(err)

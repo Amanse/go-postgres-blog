@@ -19,6 +19,7 @@ func main() {
 
 	//Get posts handler
 	ph := handlers.NewPosts(l)
+	uh := handlers.NewUser(l)
 
 	// Make a new mux/router
 	r := mux.NewRouter()
@@ -30,6 +31,7 @@ func main() {
 	//Post request router
 	postRouter := r.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/posts", ph.MakePost)
+	postRouter.HandleFunc("/users", uh.AddUser)
 
 	//Put Request
 	putRouter := r.Methods(http.MethodPut).Subrouter()
