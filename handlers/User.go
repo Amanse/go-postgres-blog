@@ -125,3 +125,24 @@ func getToken(user data.User) (string, error) {
 	return tokenStr, nil
 
 }
+
+func (u *UserHandler) IsAuth(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		if r.Header["Token"] != nil {
+			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface {}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("Error")
+				}
+				return []byte("cringe"), nil
+			})
+
+			if err != nil {
+				fmt.Fprintln(rw, err)
+			}
+
+			if token.Valid{
+				endpoint(rw, r)
+			}
+		}
+	})
+}
