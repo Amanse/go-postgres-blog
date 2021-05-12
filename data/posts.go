@@ -49,7 +49,7 @@ func GetAllPosts(db *sql.DB) Posts {
 		err := res.Scan(&post.ID, &post.Body, &post.Email, &post.UserId)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		postList = append(postList, post)
@@ -69,7 +69,7 @@ func MakePostDB(p Post, db *sql.DB) error {
 	res, err := db.Query(equery, p.UserId)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return PostNotMade
 	}
 
@@ -77,7 +77,7 @@ func MakePostDB(p Post, db *sql.DB) error {
 		var email string
 		err = res.Scan(&email)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 			return PostNotMade
 		}
 		p.Email = email
@@ -87,7 +87,7 @@ func MakePostDB(p Post, db *sql.DB) error {
 	_, err = db.Exec(query, p.Body, p.Email, p.UserId)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return PostNotMade
 	}
 
@@ -101,7 +101,7 @@ func UpdatePostDB(id int, p Post, db *sql.DB) error {
 	_, err := db.Exec(query, p.Body, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return PostNotMade
 	}
 
@@ -115,7 +115,7 @@ func DeletePostDB(id int, db *sql.DB) error {
 	_, err := db.Exec(query, id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return CantDeletePost
 	}
 
