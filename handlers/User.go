@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Amanse/sql_blog/data"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 type UserHandler struct {
@@ -29,7 +32,7 @@ func NewUser(l *log.Logger) *UserHandler {
 
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	return &UserHandler{l, db}
 }
@@ -45,15 +48,44 @@ func (u *UserHandler) AddUser(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		u.l.Println("err", err)
 		http.Error(rw, "Couldnt decode json", http.StatusBadRequest)
-		return
+		return 
 	}
 
 	err = data.AddUser(user, u.db)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		http.Error(rw, "Cant add user", http.StatusInternalServerError)
 		return
 	}
+
+	token, err := getToken(user)
+	if err != nil {
+		log.Println(err)
+		http.Error(rw, "Can't get token", http.StatusInternalServerError)
+		return 
+	}
+
+	log.Println(token)
+	fmt.Fprintln(rw, token)
+
+}
+
+func getToken(user data.User) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["authorized"] = true
+	claims["email"] = user.Email
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+
+	tokenStr, err := token.SignedString([]byte("cringe"))
+
+	if err != nil {
+		fmt.Println("Something went wrong", err)
+		return "", err
+	}
+
+	return tokenStr, nil
 
 }
