@@ -31,7 +31,8 @@ func main() {
 	//Post request router
 	postRouter := r.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/posts", ph.MakePost)
-	postRouter.HandleFunc("/users", uh.AddUser)
+	postRouter.HandleFunc("/users/add", uh.AddUser)
+	postRouter.HandleFunc("/users/login", uh.LoginUser)
 
 	//Put Request
 	putRouter := r.Methods(http.MethodPut).Subrouter()
