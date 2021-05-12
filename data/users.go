@@ -39,3 +39,38 @@ func AddUser(u User, db *sql.DB) error {
 
 	return nil
 }
+
+func LoginUser(u User, db *sql.DB) (bool, error){
+	//See if user exists
+	res, err := db.Query("SELECT email FROM users WHERE email=$1 LIMIT 1", u.Email)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
+
+	if res.Next() != true {
+		return false, fmt.Errorf("User doesn't exits")
+	}
+
+	var pass string
+
+	query := "SELECT password FROM users WHERE email=$1 LIMIT 1"
+	resp, err := db.Query(query, u.Email)
+
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
+
+	for resp.Next(){
+		resp.Scan(&pass)
+		if pass != u.Password {
+			return false, fmt.Errorf("Invalid credentials")
+		}
+	}
+
+	return true, nil
+	
+
+}
