@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -48,7 +49,7 @@ func (u *UserHandler) AddUser(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		u.l.Println("err", err)
 		http.Error(rw, "Couldnt decode json", http.StatusBadRequest)
-		return 
+		return
 	}
 
 	err = data.AddUser(user, u.db)
@@ -63,7 +64,7 @@ func (u *UserHandler) AddUser(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		http.Error(rw, "Can't get token", http.StatusInternalServerError)
-		return 
+		return
 	}
 
 	log.Println(token)
@@ -78,7 +79,7 @@ func (u *UserHandler) LoginUser(rw http.ResponseWriter, r *http.Request) {
 	var user data.User
 
 	err := user.FromJson(r.Body)
-	
+
 	if err != nil {
 		log.Println(err)
 		http.Error(rw, "Can't decode json", http.StatusBadRequest)
@@ -98,12 +99,11 @@ func (u *UserHandler) LoginUser(rw http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("Token issue")
 			http.Error(rw, "No can do", http.StatusInternalServerError)
-			return 
+			return
 		}
 		fmt.Fprintln(rw, token)
 		return
 	}
-
 
 }
 
@@ -126,10 +126,12 @@ func getToken(user data.User) (string, error) {
 
 }
 
+type KeyProduct struct{}
+
 func (u *UserHandler) IsAuth(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		if r.Header["Token"] != nil {
-			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface {}, error) {
+			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("Error")
 				}
@@ -140,8 +142,12 @@ func (u *UserHandler) IsAuth(endpoint func(http.ResponseWriter, *http.Request)) 
 				fmt.Fprintln(rw, err)
 			}
 
-			if token.Valid{
-				endpoint(rw, r)
+			if token.Valid {
+				if claims, ok := token.Claims.(jwt.MapClaims); ok {
+					ctx := context.WithValue(r.Context(), KeyProduct{}, claims["email"])
+					r = r.WithContext(ctx)
+					endpoint(rw, r)
+				}
 			}
 		}
 	})

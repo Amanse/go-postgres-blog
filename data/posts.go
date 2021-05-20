@@ -61,12 +61,11 @@ func GetAllPosts(db *sql.DB) Posts {
 
 var PostNotMade = fmt.Errorf("Couldn't make post")
 
-func MakePostDB(p Post, db *sql.DB) error {
+func MakePostDB(p Post, db *sql.DB, email string) error {
 
-	// getting the email
-
-	equery := "SELECT email FROM users WHERE id=$1"
-	res, err := db.Query(equery, p.UserId)
+	// GETTING ID
+	equery := "SELECT id FROM users WHERE email=$1"
+	res, err := db.Query(equery, email)
 
 	if err != nil {
 		log.Println(err)
@@ -84,7 +83,7 @@ func MakePostDB(p Post, db *sql.DB) error {
 	}
 
 	query := "INSERT INTO posts(body, email, user_id) VALUES($1,$2, $3)"
-	_, err = db.Exec(query, p.Body, p.Email, p.UserId)
+	_, err = db.Exec(query, p.Body, email, p.UserId)
 
 	if err != nil {
 		log.Println(err)
