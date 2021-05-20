@@ -73,13 +73,13 @@ func MakePostDB(p Post, db *sql.DB, email string) error {
 	}
 
 	for res.Next() {
-		var email string
-		err = res.Scan(&email)
+		var id int
+		err = res.Scan(&id)
 		if err != nil {
 			log.Println(err)
 			return PostNotMade
 		}
-		p.Email = email
+		p.UserId = id
 	}
 
 	query := "INSERT INTO posts(body, email, user_id) VALUES($1,$2, $3)"

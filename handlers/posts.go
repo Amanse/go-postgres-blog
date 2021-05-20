@@ -62,7 +62,6 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	claims := r.Context().Value(KeyProduct{}).(string)
 
 	email := claims
-	log.Println(email)
 
 	var post data.Post
 
