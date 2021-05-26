@@ -74,7 +74,8 @@ func (u *UserHandler) AddUser(rw http.ResponseWriter, r *http.Request) {
 
 func (u *UserHandler) LoginUser(rw http.ResponseWriter, r *http.Request) {
 	u.l.Println("Login request")
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Header().Set("Access-Control-Allow-Origin", "null")
+	rw.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	var user data.User
 
@@ -102,6 +103,7 @@ func (u *UserHandler) LoginUser(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fmt.Fprintln(rw, token)
+		u.l.Println("Login complete")
 		return
 	}
 
