@@ -17,6 +17,12 @@ type PostHandler struct {
 	db *sql.DB
 }
 
+type UserClaims struct {
+	Authorized bool   `json:"authorized"`
+	Email      string `json:"email"`
+	Exp        string `json:"exp"`
+}
+
 func NewPosts(l *log.Logger) *PostHandler {
 	//Open connection to database
 
@@ -53,6 +59,10 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Access-Control-Allow-Origin", "*")
 
+	claims := r.Context().Value(KeyProduct{}).(string)
+
+	email := claims
+
 	var post data.Post
 
 	err := post.FromJson(r.Body)
@@ -62,7 +72,7 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = data.MakePostDB(post, p.db)
+	err = data.MakePostDB(post, p.db, email)
 
 	if err != nil {
 		log.Fatal(err)
