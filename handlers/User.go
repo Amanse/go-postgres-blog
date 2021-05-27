@@ -132,6 +132,8 @@ type KeyProduct struct{}
 
 func (u *UserHandler) IsAuth(endpoint func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Set("Access-Control-Allow-Origin", "*, null")
+		rw.Header().Set("Access-Control-Allow-Header", "Token, *")
 		if r.Header["Token"] != nil {
 			token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -151,6 +153,8 @@ func (u *UserHandler) IsAuth(endpoint func(http.ResponseWriter, *http.Request)) 
 					endpoint(rw, r)
 				}
 			}
+		} else {
+			log.Println("Notoken")
 		}
 	})
 }

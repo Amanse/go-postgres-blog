@@ -10,6 +10,7 @@ import (
 
 	"github.com/Amanse/sql_blog/handlers"
 	_ "github.com/go-sql-driver/mysql"
+	goHand "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -34,6 +35,9 @@ func main() {
 	postRouter.HandleFunc("/users/add", uh.AddUser)
 	postRouter.HandleFunc("/users/login", uh.LoginUser)
 
+	corsRouter := r.Methods("OPTIONS").Subrouter()
+	corsRouter.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) { rw.WriteHeader(http.StatusOK) })
+
 	//Put Request
 	putRouter := r.Methods(http.MethodPut).Subrouter()
 	putRouter.HandleFunc("/posts/{id:[0-9]+}", ph.UpdatePost)
@@ -43,7 +47,7 @@ func main() {
 	deleteRouter.HandleFunc("/posts/{id:[0-9]+}", ph.DeletePost)
 
 	srv := &http.Server{
-		Handler:      r,
+		Handler:      goHand.CORS()(r),
 		Addr:         ":9090",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

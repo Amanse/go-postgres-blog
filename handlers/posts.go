@@ -58,7 +58,7 @@ func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST request")
 
 	rw.Header().Set("Access-Control-Allow-Origin", "*")
-
+	rw.Header().Set("Access-Control-Allow-Headers", "*")
 	claims := r.Context().Value(KeyProduct{}).(string)
 
 	email := claims

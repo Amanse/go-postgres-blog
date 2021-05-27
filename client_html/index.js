@@ -36,10 +36,13 @@ async function makePost(e) {
   token = localStorage.getItem("token");
   console.log(token)
 
+  myHeaders = new Headers;
+  myHeaders.append("Content-Type", "application/json")
+  myHeaders.append("Token", token)
+
   await fetch("http://localhost:9090/posts", {
-    mode: "no-cors",
     method: "POST",
-    headers: { "Token": token },
+    headers: {"Token": token},
     body: JSON.stringify(post),
   });
 
