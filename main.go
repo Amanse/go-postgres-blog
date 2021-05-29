@@ -27,8 +27,8 @@ func main() {
 	//Make getRouter
 	getRouter := r.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/posts", ph.GetPosts)
+	getRouter.HandleFunc("/posts/{id}", ph.GetPost)
 	//TODO
-	// - Make route /posts/{id} to get indiviual post
 	// - Add titles to posts
 
 	//Post request router

@@ -48,6 +48,23 @@ func (p *PostHandler) GetPosts(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (p *PostHandler) GetPost(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	i, _ := strconv.Atoi(id)
+
+	p.l.Println("Handle Single Post Get", i)
+
+	var post data.Post
+	post = data.GetPost(p.db, i)
+
+	err := post.ToJsonP(rw)
+	if err != nil {
+		http.Error(rw, "Couldnt decode json", http.StatusInternalServerError)
+	}
+
+}
+
 func (p *PostHandler) MakePost(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("Handle POST request")
 

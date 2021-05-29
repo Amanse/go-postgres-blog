@@ -16,7 +16,7 @@
 .env.local
 .env.development.local
 .env.test.local
-.next/
+/.next
 .env.production.local
 
 npm-debug.log*

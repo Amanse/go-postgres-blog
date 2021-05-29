@@ -22,6 +22,11 @@ type Posts []Post
 
 var postList Posts
 
+func (p *Post) ToJsonP(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p)
+}
+
 func (p *Posts) ToJson(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(p)
@@ -59,7 +64,31 @@ func GetAllPosts(db *sql.DB) Posts {
 	return postList
 }
 
+func GetPost(db *sql.DB, id int) Post {
+	var post Post
+
+	query := "SELECT * FROM posts WHERE id=$1"
+	res, err := db.Query(query, id)
+	defer res.Close()
+
+	if err != nil {
+		log.Println("error: ", err)
+	}
+
+	for res.Next() {
+		err := res.Scan(&post.ID, &post.Body, &post.Email, &post.UserId)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+	}
+
+	return post
+}
+
 var PostNotMade = fmt.Errorf("Couldn't make post")
+var PostNotFound = fmt.Errorf("Post Not found")
 
 func MakePostDB(p Post, db *sql.DB) error {
 
