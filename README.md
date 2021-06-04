@@ -1,4 +1,4 @@
-# go-mariadb-blog
+# go-postgresql-blog
 Just a backend(for now) written in golang and using mariadb as database
 
 ## setup
